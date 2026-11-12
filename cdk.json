@@ -1,0 +1,7 @@
+{
+  "app": "pnpm tsx bin/app.ts",
+  "context": {
+    "stage": "dev",
+    "region": "us-east-1"
+  }
+}

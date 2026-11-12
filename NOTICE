@@ -1,0 +1,9 @@
+The MIT license applies to this repository's source code.
+
+Dependencies retain their own licenses. Bundled Lambda JavaScript includes
+Zod under its MIT license; the build copies that license beside each handler.
+The Anthropic Claude Code CLI and cloud service are separate products governed
+by their own terms. No Claude CLI binary is included in this repository or its
+package. Compiled first-party library code and handler bundles are committed
+for installation from Git. Deployment output, credentials, private backtests,
+and internal reviews are excluded from the source distribution.

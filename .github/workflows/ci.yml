@@ -1,0 +1,45 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local@sha256:6ada631ec7aa5fc83446855eb17233e3dad184fec47477e8140c6c569cfe0c86
+        ports: [8000:8000]
+    env:
+      DYNAMODB_TEST_ENDPOINT: http://127.0.0.1:8000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm run build:all
+      - name: dist is committed and fresh
+        run: git diff --exit-code -- dist
+      - run: pnpm test
+      - run: pnpm audit --audit-level=low
+      - run: pnpm synth
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.13.5
+          terraform_wrapper: false
+      - name: grader Terraform is formatted and valid
+        run: |
+          pnpm grader fmt -check
+          pnpm grader init -input=false -lockfile=readonly
+          pnpm grader validate

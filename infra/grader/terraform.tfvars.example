@@ -1,0 +1,11 @@
+# Copy to terraform.tfvars (ignored by Git) and adjust. All values are optional.
+
+# Exact OpenTelemetry env tag your self-healing Claude environment emits.
+environment = "self-healing-agent"
+
+# Limit the checks to one repository identity copied from CodeTelemetry session
+# metadata. Leave unset to cover every repository using the environment tag.
+# repository_id = "..."
+
+# Which pull-request actions earn the PR-workflow check.
+pull_request_actions = ["create", "update", "comment"]

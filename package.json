@@ -1,0 +1,74 @@
+{
+  "name": "@codetelemetry/self-healing-agent",
+  "version": "0.2.0",
+  "private": true,
+  "description": "SNS-driven Claude Code incident investigation and self-healing PR orchestration (reusable CDK library)",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": "^22.13.0 || ^24.0.0 || >=26.0.0"
+  },
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/lib/index.d.ts",
+      "import": "./dist/lib/index.js"
+    }
+  },
+  "files": [
+    "dist/lib",
+    "dist/src",
+    "dist/lambdas",
+    "config",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "scripts": {
+    "build": "tsc --noEmit",
+    "build:lib": "tsc -p tsconfig.build.json",
+    "bundle": "tsx scripts/build-lambdas.ts",
+    "test": "pnpm bundle && vitest run",
+    "test:watch": "vitest",
+    "synth": "pnpm bundle && cdk synth",
+    "render:claude-env": "tsx scripts/render-claude-env.ts",
+    "configure:mapping-secrets": "tsx scripts/configure-mapping-secrets.ts",
+    "configure:github-webhook": "tsx scripts/configure-github-webhook.ts",
+    "cdk": "cdk",
+    "build:all": "tsx scripts/build-lambdas.ts && tsc -p tsconfig.build.json",
+    "prepack": "tsx scripts/build-lambdas.ts && tsc -p tsconfig.build.json",
+    "configure:pr-gate": "tsx scripts/configure-pr-gate.ts",
+    "grader": "terraform -chdir=infra/grader",
+    "reconcile:delivery": "tsx scripts/reconcile-delivery.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudwatch": "^3.883.0",
+    "@aws-sdk/client-dynamodb": "^3.883.0",
+    "@aws-sdk/client-secrets-manager": "^3.883.0",
+    "@aws-sdk/client-sts": "^3.883.0",
+    "@aws-sdk/lib-dynamodb": "^3.883.0",
+    "aws-cdk-lib": "^2.214.0",
+    "constructs": "^10.4.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@codetelemetry/mcp": "0.6.0",
+    "@types/aws-lambda": "^8.10.152",
+    "@types/node": "^22.18.0",
+    "aws-cdk": "^2.1029.2",
+    "esbuild": "^0.25.9",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "vitest": "^5.1.0"
+  },
+  "packageManager": "pnpm@11.19.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CodeTelemetry/self-healing-agent.git"
+  },
+  "homepage": "https://github.com/CodeTelemetry/self-healing-agent#readme",
+  "bugs": {
+    "url": "https://github.com/CodeTelemetry/self-healing-agent/issues"
+  }
+}

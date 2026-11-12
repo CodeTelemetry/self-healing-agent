@@ -1,0 +1,466 @@
+[
+  {
+    "satisfactionMode": "successful",
+    "minimumOccurrences": 1,
+    "aggregationMode": "once",
+    "enabled": true,
+    "id": "self-healing.aws-identity",
+    "name": "Verify AWS identity",
+    "category": "environment_validation",
+    "description": "Validate Claude cloud access with aws sts get-caller-identity. Requires a successful command; does not inspect the returned account, role, or credential lifetime.",
+    "weight": 5,
+    "matcherRule": {
+      "include": {
+        "all": [
+          {
+            "field": "source",
+            "operator": "equals",
+            "value": "shell"
+          },
+          {
+            "field": "executable",
+            "operator": "equals",
+            "value": "aws"
+          },
+          {
+            "field": "operation",
+            "operator": "equals",
+            "value": "sts"
+          },
+          {
+            "field": "normalizedArguments",
+            "operator": "contains",
+            "value": [
+              "get-caller-identity"
+            ]
+          }
+        ]
+      },
+      "exclude": {
+        "field": "normalizedArguments",
+        "operator": "contains",
+        "value": [
+          "--help",
+          "--version",
+          "--generate-cli-skeleton",
+          "help"
+        ]
+      },
+      "argumentNormalization": "persisted"
+    }
+  },
+  {
+    "satisfactionMode": "successful",
+    "minimumOccurrences": 1,
+    "aggregationMode": "once",
+    "enabled": true,
+    "id": "self-healing.alarm-investigation",
+    "name": "Inspect the CloudWatch alarm",
+    "category": "environment_validation",
+    "description": "Investigate the delivered alarm with a successful read-only CloudWatch alarm or alarm-history query.",
+    "weight": 5,
+    "matcherRule": {
+      "include": {
+        "all": [
+          {
+            "field": "source",
+            "operator": "equals",
+            "value": "shell"
+          },
+          {
+            "field": "executable",
+            "operator": "equals",
+            "value": "aws"
+          },
+          {
+            "field": "operation",
+            "operator": "equals",
+            "value": "cloudwatch"
+          },
+          {
+            "field": "normalizedArguments",
+            "operator": "contains",
+            "value": [
+              "describe-alarms",
+              "describe-alarm-history"
+            ]
+          }
+        ]
+      },
+      "exclude": {
+        "field": "normalizedArguments",
+        "operator": "contains",
+        "value": [
+          "--help",
+          "--version",
+          "--generate-cli-skeleton",
+          "help"
+        ]
+      },
+      "argumentNormalization": "persisted"
+    }
+  },
+  {
+    "satisfactionMode": "successful",
+    "minimumOccurrences": 1,
+    "aggregationMode": "once",
+    "enabled": true,
+    "id": "self-healing.incident-evidence",
+    "name": "Query incident logs or metrics",
+    "category": "environment_validation",
+    "description": "Successfully read CloudWatch logs, query results, or metric data. Command success alone does not prove the data concerns the delivered alarm or shows recovery.",
+    "weight": 5,
+    "matcherRule": {
+      "include": {
+        "any": [
+          {
+            "all": [
+              {
+                "field": "source",
+                "operator": "equals",
+                "value": "shell"
+              },
+              {
+                "field": "executable",
+                "operator": "equals",
+                "value": "aws"
+              },
+              {
+                "field": "operation",
+                "operator": "equals",
+                "value": "logs"
+              },
+              {
+                "field": "normalizedArguments",
+                "operator": "contains",
+                "value": [
+                  "filter-log-events",
+                  "get-log-events",
+                  "get-query-results"
+                ]
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "field": "source",
+                "operator": "equals",
+                "value": "shell"
+              },
+              {
+                "field": "executable",
+                "operator": "equals",
+                "value": "aws"
+              },
+              {
+                "field": "operation",
+                "operator": "equals",
+                "value": "cloudwatch"
+              },
+              {
+                "field": "normalizedArguments",
+                "operator": "contains",
+                "value": [
+                  "get-metric-data",
+                  "get-metric-statistics"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "exclude": {
+        "field": "normalizedArguments",
+        "operator": "contains",
+        "value": [
+          "--help",
+          "--version",
+          "--generate-cli-skeleton",
+          "help"
+        ]
+      },
+      "argumentNormalization": "persisted"
+    }
+  },
+  {
+    "satisfactionMode": "successful",
+    "minimumOccurrences": 1,
+    "aggregationMode": "once",
+    "enabled": true,
+    "id": "self-healing.build",
+    "name": "Build succeeds before push",
+    "category": "static_analysis",
+    "description": "A successful npm/pnpm/yarn/bun build script. beforePush requires it in the final edit-to-push window. Help, dry-run, watch, and optional-script variants are excluded. Adapt for each mapped repository.",
+    "weight": 19,
+    "beforePush": true,
+    "matcherRule": {
+      "include": {
+        "all": [
+          {
+            "field": "source",
+            "operator": "equals",
+            "value": "shell"
+          },
+          {
+            "field": "executable",
+            "operator": "in",
+            "value": [
+              "npm",
+              "pnpm",
+              "yarn",
+              "bun"
+            ]
+          },
+          {
+            "field": "packageScript",
+            "operator": "equals",
+            "value": "build"
+          }
+        ]
+      },
+      "exclude": {
+        "field": "normalizedArguments",
+        "operator": "contains",
+        "value": [
+          "--help",
+          "-h",
+          "--version",
+          "--dry-run",
+          "--if-present",
+          "--watch",
+          "-w"
+        ]
+      },
+      "argumentNormalization": "persisted"
+    }
+  },
+  {
+    "satisfactionMode": "successful",
+    "minimumOccurrences": 1,
+    "aggregationMode": "once",
+    "enabled": true,
+    "id": "self-healing.tests",
+    "name": "Tests succeed before push",
+    "category": "unit_test",
+    "description": "A successful npm/pnpm/yarn/bun test script. beforePush requires it in the final edit-to-push window. Help, dry-run, watch, list-only, and skip variants are excluded. Adapt for each mapped repository.",
+    "weight": 51,
+    "beforePush": true,
+    "matcherRule": {
+      "include": {
+        "all": [
+          {
+            "field": "source",
+            "operator": "equals",
+            "value": "shell"
+          },
+          {
+            "field": "executable",
+            "operator": "in",
+            "value": [
+              "npm",
+              "pnpm",
+              "yarn",
+              "bun"
+            ]
+          },
+          {
+            "field": "packageScript",
+            "operator": "equals",
+            "value": "test"
+          }
+        ]
+      },
+      "exclude": {
+        "field": "normalizedArguments",
+        "operator": "contains",
+        "value": [
+          "--help",
+          "-h",
+          "--version",
+          "--dry-run",
+          "--if-present",
+          "--watch",
+          "-w",
+          "--list",
+          "--listTests",
+          "--collect-only",
+          "--passWithNoTests",
+          "--skip"
+        ]
+      },
+      "argumentNormalization": "persisted"
+    }
+  },
+  {
+    "satisfactionMode": "successful",
+    "minimumOccurrences": 1,
+    "aggregationMode": "once",
+    "enabled": true,
+    "id": "self-healing.pull-request",
+    "name": "Create, update, or comment on the healing PR",
+    "category": "custom",
+    "description": "One successful selected PR action: CLI gh pr create/edit/comment or GitHub MCP create_pull_request/update_pull_request. Alternatives award the same 15 points once. Commands that also name another gh pr subcommand (list, view, merge, ...) are excluded. Ambiguous issue/reaction tools and draft review comments are excluded. Target PR identity and useful content still require independent verification.",
+    "weight": 15,
+    "matcherRule": {
+      "include": {
+        "any": [
+          {
+            "any": [
+              {
+                "all": [
+                  {
+                    "field": "source",
+                    "operator": "equals",
+                    "value": "shell"
+                  },
+                  {
+                    "field": "executable",
+                    "operator": "equals",
+                    "value": "gh"
+                  },
+                  {
+                    "field": "operation",
+                    "operator": "equals",
+                    "value": "pr"
+                  },
+                  {
+                    "field": "normalizedArguments",
+                    "operator": "contains",
+                    "value": [
+                      "create"
+                    ]
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "field": "source",
+                    "operator": "equals",
+                    "value": "mcp"
+                  },
+                  {
+                    "field": "toolNamespace",
+                    "operator": "equals",
+                    "value": "github"
+                  },
+                  {
+                    "field": "toolName",
+                    "operator": "equals",
+                    "value": "create_pull_request"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "all": [
+                  {
+                    "field": "source",
+                    "operator": "equals",
+                    "value": "shell"
+                  },
+                  {
+                    "field": "executable",
+                    "operator": "equals",
+                    "value": "gh"
+                  },
+                  {
+                    "field": "operation",
+                    "operator": "equals",
+                    "value": "pr"
+                  },
+                  {
+                    "field": "normalizedArguments",
+                    "operator": "contains",
+                    "value": [
+                      "edit"
+                    ]
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "field": "source",
+                    "operator": "equals",
+                    "value": "mcp"
+                  },
+                  {
+                    "field": "toolNamespace",
+                    "operator": "equals",
+                    "value": "github"
+                  },
+                  {
+                    "field": "toolName",
+                    "operator": "equals",
+                    "value": "update_pull_request"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "field": "source",
+                "operator": "equals",
+                "value": "shell"
+              },
+              {
+                "field": "executable",
+                "operator": "equals",
+                "value": "gh"
+              },
+              {
+                "field": "operation",
+                "operator": "equals",
+                "value": "pr"
+              },
+              {
+                "field": "normalizedArguments",
+                "operator": "contains",
+                "value": [
+                  "comment"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "exclude": {
+        "field": "normalizedArguments",
+        "operator": "contains",
+        "value": [
+          "--help",
+          "-h",
+          "--version",
+          "--dry-run",
+          "--web",
+          "-w",
+          "--delete-last",
+          "help",
+          "list",
+          "view",
+          "status",
+          "checks",
+          "diff",
+          "checkout",
+          "close",
+          "merge",
+          "ready",
+          "reopen",
+          "review",
+          "lock",
+          "unlock",
+          "update-branch",
+          "revert"
+        ]
+      },
+      "argumentNormalization": "persisted"
+    }
+  }
+]

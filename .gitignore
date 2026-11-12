@@ -1,0 +1,10 @@
+node_modules/
+cdk.out/
+coverage/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+# dist/ is committed so the package is git-installable without a build step
+*.tgz
